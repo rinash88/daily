@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#E9EEF4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A111D" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Что интересного сегодня и что будет дальше?">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="8ra">
+<meta property="og:title" content="8ra">
+<meta property="og:description" content="Что интересного сегодня и что будет дальше?">
+<meta property="og:url" content="https://rinash88.github.io/daily/">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="8ra">
+<meta name="twitter:description" content="Что интересного сегодня и что будет дальше?">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-512%20(1).png">
+<link rel="apple-touch-icon" href="icon-512%20(1).png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="8ra">
+<meta name="application-name" content="8ra">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>8ra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#E9EEF4; --surface:#FFFFFF; --surface-2:#F4F7FA; --ink:#101B2C; --muted:#5A6A7F; --line:#D5DEE8;
+  --accent:#FF5A1F; --accent-ink:#FFFFFF; --good:#18935A; --warn:#C98A00; --warn-bg:#FFF3CF; --warn-ink:#6B4A00;
+  --shadow:0 18px 40px -18px rgba(16,27,44,.35);
+  --display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0A111D; --surface:#131C2B; --surface-2:#1A2537; --ink:#E7EEF7; --muted:#92A3B8; --line:#26344A;
+    --accent:#FF7440; --good:#3CC585; --warn:#F1B72E; --warn-bg:#3A2E0B; --warn-ink:#FFDC85;
+    --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0A111D; --surface:#131C2B; --surface-2:#1A2537; --ink:#E7EEF7; --muted:#92A3B8; --line:#26344A;
+  --accent:#FF7440; --good:#3CC585; --warn:#F1B72E; --warn-bg:#3A2E0B; --warn-ink:#FFDC85;
+  --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--ground);margin:0;overscroll-behavior-y:none}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{font-family:var(--body);color:var(--ink);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.app{max-width:440px;margin:0 auto;padding-inline:16px;padding-block:18px 110px;min-height:100%}
+.view[hidden]{display:none!important}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hello{text-wrap:balance;font-family:var(--display);font-weight:700;font-size:26px;line-height:1.1;letter-spacing:-.01em;margin:0}
+.date{color:var(--muted);font-weight:600;margin-top:6px}
+.wx{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.wx i{font-style:normal;font-size:18px}
+.top-r{display:flex;gap:8px;align-items:center;flex:none}
+.top .date{white-space:nowrap}
+@media (max-width:420px){.hello{font-size:22px}.wx small{display:none}}
+.share{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--ink);flex:none}
+.wx small{color:var(--muted);font-weight:600}
+.ask{margin:22px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ask h2{font-size:18px;margin:0;font-weight:800}
+.dots{display:flex;gap:5px}
+.dots span{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s,transform .2s}
+.dots span.on{background:var(--accent);transform:scale(1.25)}
+.dots span.done{background:var(--muted)}
+
+/* deck */
+.deck{position:relative;height:500px;touch-action:pan-y}
+.card{position:absolute;inset:0;border-radius:28px;padding:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);user-select:none;-webkit-user-select:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;will-change:transform}
+.card.back1{transform:translateY(14px) scale(.95);opacity:.9;pointer-events:none}
+.card.back2{transform:translateY(28px) scale(.9);opacity:.6;pointer-events:none}
+.card.dragging{transition:none;cursor:grabbing}
+.card .kick{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.card h3{font-family:var(--display);font-weight:800;font-size:27px;line-height:1.08;letter-spacing:-.015em;margin:10px 0 10px;text-wrap:balance}
+.card p{margin:0 0 10px;font-size:15.5px}
+.card .grow{flex:1;min-height:0;overflow:auto;scrollbar-width:none}
+.card .grow::-webkit-scrollbar{display:none}
+.card .emo{font-size:46px;line-height:1;margin-top:4px}
+.stamp{position:absolute;top:26px;padding:6px 14px;border:3px solid currentColor;border-radius:12px;font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.06em;opacity:0;pointer-events:none;background:rgba(255,255,255,.12)}
+.stamp.yes{left:22px;transform:rotate(-12deg);color:#7CF2AE}
+.stamp.no{right:22px;transform:rotate(12deg);color:#FFB3A1}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:800;font-size:15px;background:rgba(255,255,255,.95);color:#101B2C;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.16);color:inherit;border:1.5px solid rgba(255,255,255,.4)}
+.btn.small{padding:8px 12px;font-size:14px;border-radius:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row.fill > *{flex:1}
+.note{font-size:12.5px;opacity:.75;margin-top:8px}
+.bubble{background:rgba(255,255,255,.14);border-radius:18px;padding:14px;margin-top:4px;font-size:15px}
+.bubble.light{background:rgba(16,27,44,.08)}
+textarea.dream{width:100%;min-height:92px;border-radius:16px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:inherit;padding:12px;font:inherit;resize:none}
+textarea.dream::placeholder{color:rgba(255,255,255,.6)}
+.mic{display:inline-flex;align-items:center;gap:8px}
+.wave{display:inline-flex;gap:3px;align-items:center;height:18px}
+.wave b{width:3px;background:currentColor;border-radius:2px;animation:w 0.9s infinite ease-in-out}
+.wave b:nth-child(2){animation-delay:.15s}.wave b:nth-child(3){animation-delay:.3s}.wave b:nth-child(4){animation-delay:.45s}
+@keyframes w{0%,100%{height:4px}50%{height:18px}}
+.opt{border:1.5px solid rgba(255,255,255,.45);background:transparent;border-radius:14px;padding:12px 0;font-family:var(--display);font-weight:700;font-size:17px;color:inherit;font-variant-numeric:tabular-nums}
+.opt.right{background:#7CF2AE;color:#0B2B1B;border-color:#7CF2AE}
+.opt.wrong{background:rgba(255,120,100,.35);border-color:transparent;text-decoration:line-through}
+.opt.dim{opacity:.45}
+.opt.ink{border-color:rgba(16,27,44,.3)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:999px;padding:7px 12px;font-size:13.5px;font-weight:700;background:rgba(255,255,255,.16);border:0;color:inherit}
+.chip.ink{background:rgba(16,27,44,.09)}
+.chip.sel{background:#fff;color:#101B2C}
+.big{font-family:var(--display);font-weight:800;font-size:108px;line-height:.9;letter-spacing:-.05em;font-variant-numeric:tabular-nums;margin:6px 0 4px}
+.big small{font-size:22px;letter-spacing:0;font-weight:700;margin-left:6px}
+.progress{height:12px;border-radius:999px;background:rgba(255,255,255,.2);overflow:hidden}
+.progress i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .5s}
+.steps-num{font-family:var(--display);font-weight:800;font-size:34px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+
+/* card palettes */
+.c-dream{background:radial-gradient(120% 80% at 90% 0%,#3D3F9A 0%,#1C1F4F 55%,#12143A 100%);color:#EEF0FF}
+.c-day{background:#FFC53D;color:#231A00}
+.c-day .btn{background:#231A00;color:#FFC53D}
+.c-hist{background:#0E6B63;color:#E9FFFB}
+.c-ny{background:#0D4432;color:#EAFBF1}
+.c-hw{background:#1B1410;color:#FFB072}
+.c-hw .btn{background:#FF7A1A;color:#1B1410}
+.c-sport{background:#1450F5;color:#EEF3FF}
+.c-chal{background:#C8F05A;color:#18230A}
+.c-chal .btn{background:#18230A;color:#C8F05A}
+.c-chal .progress{background:rgba(24,35,10,.15)}.c-chal .progress i{background:#18230A}
+.c-sber{background:#1E8E3E;color:#F0FFF3}
+
+.phase{display:flex;gap:5px;margin:-2px 0 12px;overflow-x:auto;scrollbar-width:none}
+.phase span{white-space:nowrap;font-size:11.5px;font-weight:800;letter-spacing:.02em;padding:5px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
+.phase span.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.phase span.done{opacity:.55}
+.c-ev{color:#fff}
+.c-ev .btn{white-space:nowrap}
+.install{display:flex;flex-direction:column;gap:10px}
+.install ol{margin:0;padding-left:20px;color:var(--muted)}
+.deck-actions{display:flex;justify-content:center;gap:22px;margin-top:22px}
+.round{width:62px;height:62px;border-radius:50%;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;font-size:24px;font-weight:800}
+.round.yes{color:var(--good)}.round.no{color:#D9482B}
+.round:disabled{opacity:.35;cursor:default}
+.hint{text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
+
+.done-card{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:28px 22px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.done-card h3{font-family:var(--display);font-size:24px;margin:0}
+.done-card p{color:var(--muted);margin:0}
+
+/* sections */
+.sec{margin-top:36px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.sec-h h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em}
+.sec-sub{color:var(--muted);margin:4px 0 14px}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:4px 16px 16px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.ev{scroll-snap-align:start;flex:0 0 82%;max-width:340px;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:280px;color:#fff;position:relative;transition:transform .35s,opacity .35s}
+.ev.out-l{transform:translateX(-40px) rotate(-6deg);opacity:0}
+.ev.out-r{transform:translateX(40px) rotate(6deg);opacity:0}
+.ev .cat{font-family:var(--display);font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.ev h4{font-family:var(--display);font-weight:800;font-size:21px;line-height:1.1;margin:0;text-wrap:balance}
+.ev .meta{font-weight:700;font-size:14px;display:flex;gap:10px;flex-wrap:wrap;opacity:.95}
+.ev .blurb{font-size:14.5px;opacity:.9;flex:1}
+.ev .emo{font-size:38px;line-height:1}
+.ev .row{margin-top:4px}
+.ev .btn{flex:1;white-space:nowrap;padding:9px 8px;font-size:13.5px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800}
+.pill.warn{background:var(--warn-bg);color:var(--warn-ink)}
+.pill.ok{background:rgba(24,147,90,.14);color:var(--good)}
+.ev .pill.warn{background:#FFE08A;color:#4A3300}
+.hidden-note{color:var(--muted);font-size:13px;margin-top:-6px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:20px;padding:20px;color:var(--muted);text-align:center}
+
+/* my */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.my{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start}
+.my .ico{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;grid-row:span 2}
+.my .t{font-weight:800;font-size:16.5px}
+.my .kick2{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.cd{font-family:var(--display);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.cd.soon{color:var(--accent)}
+.my-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sbtn{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:8px 12px;font-weight:700;font-size:13.5px}
+.sbtn.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.sbtn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.status{grid-column:1/-1;background:var(--warn-bg);color:var(--warn-ink);border-radius:14px;padding:10px 12px;font-size:13.5px;margin-top:8px}
+.status b{display:block}
+.more{grid-column:1/-1;color:var(--muted);font-size:14px;margin-top:6px}
+.comp{grid-column:1/-1;margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.tl{display:flex;gap:6px;margin-bottom:10px}
+.tl button{flex:1;border:1px solid var(--line);background:transparent;border-radius:10px;padding:7px 4px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.tl button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tl button.now::after{content:" •";color:var(--accent)}
+.check{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.check label{display:flex;gap:8px;align-items:center;background:var(--surface-2);border-radius:10px;padding:8px 10px;font-size:14px;font-weight:600;cursor:pointer}
+.check input{accent-color:var(--good);width:17px;height:17px}
+.check label.ok{text-decoration:line-through;color:var(--muted)}
+.rate{display:flex;gap:8px;margin-top:8px}
+.rate button{flex:1;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 0;font-size:22px}
+.rate button.on{border-color:var(--accent);background:var(--warn-bg)}
+
+.lead{font-family:var(--display);font-weight:700;font-size:24px;margin:0 0 6px}
+.muted{color:var(--muted)}
+.tagcloud{display:flex;flex-wrap:wrap;gap:8px}
+.tag{border-radius:999px;padding:7px 12px;font-weight:700;font-size:14px;border:1px solid var(--line);background:var(--surface-2)}
+.tag.plus{border-color:transparent;background:rgba(24,147,90,.14);color:var(--good)}
+.tag.minus{border-color:transparent;background:rgba(217,72,43,.12);color:#C6402A}
+.hid{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.hid:first-child{border-top:0}
+.foot{color:var(--muted);font-size:12.5px;margin-top:28px;line-height:1.5}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:800;padding:0}
+
+/* active challenges strip */
+.chal-strip{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.chal-strip .progress{background:var(--surface-2)}
+.chal-strip .progress i{background:var(--good)}
+.chal-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:800}
+.chal-top span{font-family:var(--display);font-variant-numeric:tabular-nums;font-size:15px}
+
+/* tabbar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;pointer-events:none}
+.tabs{pointer-events:auto;display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:5px;box-shadow:var(--shadow);width:100%;max-width:408px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:17px;padding:10px 6px;font-weight:800;font-size:14px;color:var(--muted);position:relative}
+.tabs button.on{background:var(--ink);color:var(--surface)}
+.badge{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:#fff;font-size:11.5px;margin-left:6px;padding:0 5px}
+
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--surface);padding:12px 16px;border-radius:14px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px);width:max-content;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{background:none;border:0;color:var(--accent);font-weight:800;padding:0}
+.typing::after{content:"▍";animation:blink 1s steps(1) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:380px){.big{font-size:88px}.card h3{font-size:24px}.deck{height:520px}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <h1 class="hello" id="hello">Доброе утро</h1>
+      <div class="date" id="date">Пятница, 25 сентября</div>
+    </div>
+    <div class="top-r"><div class="wx" title="Погода — пример"><i>⛅</i>+11°<small>Москва</small></div><button class="share" id="shareBtn" aria-label="Поделиться 8ra"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+  </header>
+
+  <!-- TODAY -->
+  <section class="view" id="v-today">
+    <div class="ask"><h2>Что интересного сегодня?</h2><div class="dots" id="dots"></div></div>
+    <div class="phase" id="phase"></div>
+    <div class="deck" id="deck"></div>
+    <div class="deck-actions" id="deckActions">
+      <button class="round no" id="btnNo" aria-label="Неинтересно, пропустить">✕</button>
+      <button class="round yes" id="btnYes" aria-label="Интересно, сохранить">♥</button>
+    </div>
+    <div class="hint" id="deckHint">Свайп вправо — интересно, влево — пропустить</div>
+
+    <div class="sec" id="chalSec" hidden>
+      <div class="sec-h"><h2>✅ Мои дела на сегодня</h2></div>
+      <p class="sec-sub">Сюда попадает всё, что ты свайпнул вправо в «Делах»</p>
+      <div class="stack" id="chalList"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>🔥 Скоро</h2></div>
+      <p class="sec-sub">Что интересного произойдёт в ближайшие 2–3 месяца</p>
+      <div class="rail" id="rail"></div>
+      <div class="hidden-note" id="railNote"></div>
+    </div>
+  </section>
+
+  <!-- MY -->
+  <section class="view" id="v-my" hidden>
+    <div class="sec" style="margin-top:22px">
+      <div class="sec-h"><h2>❤️ Мои события</h2></div>
+      <p class="sec-sub">Всё, что ты сохранил, с обратным отсчётом</p>
+      <div class="stack" id="myList"></div>
+    </div>
+  </section>
+
+  <!-- ME -->
+  <section class="view" id="v-me" hidden>
+    <div class="sec" style="margin-top:22px">
+      <div class="panel">
+        <p class="lead">Что я о тебе понял</p>
+        <p class="muted" style="margin:0 0 14px">Собираю по твоим свайпам. Чем больше реакций, тем точнее утро.</p>
+        <div class="tagcloud" id="tags"></div>
+      </div>
+    </div>
+    <div class="sec" style="margin-top:14px">
+      <div class="panel">
+        <p class="lead" style="font-size:19px">Больше не показываю</p>
+        <p class="muted" style="margin:0 0 8px">Ты сказал «не моё». Похожее тоже показываю реже.</p>
+        <div id="hiddenList"></div>
+      </div>
+    </div>
+    <div class="sec" style="margin-top:14px">
+      <div class="panel install" id="installBox">
+        <p class="lead" style="font-size:19px;margin:0">📲 Приложение на телефоне</p>
+        <p class="muted" style="margin:0" id="installText">Добавь 8ra на экран «Домой» — откроется как приложение, без адресной строки, и будет работать без интернета.</p>
+        <button class="sbtn primary" id="installBtn" hidden style="align-self:flex-start">Установить</button>
+        <ol id="installIos" hidden><li>Нажми «Поделиться» внизу Safari</li><li>Выбери «На экран „Домой“»</li><li>Нажми «Добавить»</li></ol>
+        <ol id="installAndroid" hidden><li>Открой меню браузера ⋮</li><li>Выбери «Установить приложение» или «Добавить на главный экран»</li></ol>
+      </div>
+    </div>
+    <p class="foot">Прототип. Даты праздников, марафона и исторические факты настоящие; погода, концерты, фестивали и шаги — демонстрационные.
+      Толкования снов — развлечение и повод подумать, а не предсказание.<br><br>
+      <button class="linkbtn" id="reset">Начать утро заново</button></p>
+  </section>
+</div>
+
+<nav class="tabbar"><div class="tabs" role="tablist">
+  <button class="on" data-tab="today" role="tab">Сегодня</button>
+  <button data-tab="my" role="tab">Мои<span class="badge" id="myBadge" hidden>0</span></button>
+  <button data-tab="me" role="tab">Обо мне</button>
+</div></nav>
+<div class="toast" id="toast" role="status"><span id="toastText"></span><button id="toastUndo" hidden>Вернуть</button></div>
+
+<script>
+/* ---------- demo clock ---------- */
+const TODAY = new Date(2026, 8, 25); // пятница, 25 сентября 2026
+const DAY = 86400000;
+function daysTo(iso){ const [y,m,d]=iso.split('-').map(Number); return Math.round((new Date(y,m-1,d)-TODAY)/DAY); }
+function plural(n,f){ n=Math.abs(n)%100; const n1=n%10; if(n>10&&n<20) return f[2]; if(n1>1&&n1<5) return f[1]; if(n1===1) return f[0]; return f[2]; }
+function inDays(n){ if(n<0) return 'прошло'; if(n===0) return 'сегодня'; if(n===1) return 'завтра'; if(n===2) return 'послезавтра'; return 'через '+n+' '+plural(n,['день','дня','дней']); }
+function fmt(n){ return n.toLocaleString('ru-RU'); }
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- AI (viewer's Claude, optional) ---------- */
+let samplePromise = (window.claude && window.claude.use) ? window.claude.use('sample').catch(()=>null) : Promise.resolve(null);
+let aiOff = false;
+async function askAI(prompt, onText){
+  if(aiOff) return null;
+  const s = await samplePromise;
+  if(!s) return null;
+  try{
+    const r = await s(prompt, {modelTier:'quick', cache:false, onText: ({text})=>onText && onText(text)});
+    return r.text;
+  }catch(e){
+    if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e.code)) aiOff = true;
+    return e.text || null;
+  }
+}
+
+/* ---------- data ---------- */
+const CATS = {
+  run:'Бег', sport:'Спорт', music:'Музыка', cinema:'Кино', games:'Игры', art:'Выставки', theatre:'Театр',
+  books:'Книги', holiday:'Праздники', history:'История', dreams:'Сны', facts:'Факты', brands:'Истории брендов', challenge:'Челленджи'
+};
+const EVENTS = [
+  {id:'marathon', emoji:'🏃', cat:'run', title:'Московский марафон', date:'2026-09-27', dateLabel:'26–27 сентября', place:'Москва, Лужники',
+   blurb:'Один из главных беговых стартов осени: марафон, 10 км и забеги для детей.', status:'confirmed', tickets:false, color:'#1450F5',
+   details:'Старт и финиш — в Лужниках. Часть улиц центра будет перекрыта в дни забегов. Регистрация участников уже закрыта, болеть можно вдоль всей трассы.'},
+  {id:'shost', emoji:'🎻', cat:'music', title:'Шостакович — 120', date:'2026-10-10', dateLabel:'10 октября', place:'Концертный зал, центр',
+   blurb:'Симфонический вечер к юбилею композитора: Пятая и Седьмая симфонии.', status:'confirmed', tickets:true, color:'#6B2BD9',
+   details:'Пример события: вечер из двух отделений, около 2 ч 20 мин с антрактом.'},
+  {id:'derby', emoji:'⚽', cat:'sport', title:'Большое московское дерби', date:'2026-10-04', dateLabel:'4 октября', place:'Москва',
+   blurb:'Главный матч тура. Можно пойти на стадион или собрать друзей у экрана.', status:'confirmed', tickets:true, color:'#C4182F',
+   details:'Пример события: начало в 19:30, трансляция на федеральном канале.'},
+  {id:'hockey', emoji:'🏒', cat:'sport', title:'Хоккей: классика КХЛ', date:'2026-10-12', dateLabel:'12 октября', place:'Москва',
+   blurb:'Одно из самых принципиальных противостояний сезона.', status:'confirmed', tickets:true, color:'#0E5B8C',
+   details:'Пример события.'},
+  {id:'shortfilm', emoji:'🎬', cat:'cinema', title:'Ночь короткого метра', date:'2026-10-22', dateLabel:'22 октября', place:'Кинотеатр у Чистых прудов',
+   blurb:'Десять фильмов по 15 минут и голосование зала за победителя.', status:'confirmed', tickets:true, color:'#1F2937',
+   details:'Пример события: 20:00–23:30, 18+.'},
+  {id:'gamefest', emoji:'🎮', cat:'games', title:'Игровой фестиваль', date:'2026-11-14', dateLabel:'14–15 ноября', place:'Москва',
+   blurb:'Инди-разработчики, турниры и ретро-зона с приставками.', status:'unconfirmed', tickets:false, color:'#0F766E',
+   details:'Пример события: площадка и программа пока не объявлены.'},
+  {id:'space', emoji:'🪐', cat:'art', title:'Космос в искусстве', date:'2026-10-03', dateLabel:'3 октября — 10 января', place:'Выставочный центр',
+   blurb:'От первых фотографий Луны до плакатов эпохи спутников.', status:'confirmed', tickets:true, color:'#23234F',
+   details:'Пример события: вход по сеансам, лучше брать билет на утро буднего дня.'},
+  {id:'nonfiction', emoji:'📚', cat:'books', title:'Ярмарка интеллектуальной литературы', date:'2026-12-03', dateLabel:'начало декабря', place:'Москва',
+   blurb:'Большая зимняя книжная ярмарка: лекции, автографы, новинки.', status:'unconfirmed', tickets:false, color:'#8A4B12',
+   details:'Пример события: даты ещё уточняются.'},
+];
+const EV = Object.fromEntries(EVENTS.map(e=>[e.id,e]));
+const SPECIAL = {
+  ny:{id:'ny', emoji:'🎄', cat:'holiday', title:'Новый год', date:'2027-01-01', color:'#0D4432', status:'confirmed', tickets:false,
+      details:'Буду иногда подсказывать по одному шагу: подарки, поездка, бюджет. Без сложных планов.'},
+  halloween:{id:'halloween', emoji:'🎃', cat:'holiday', title:'Хэллоуин', date:'2026-10-31', color:'#1B1410', status:'confirmed', tickets:false,
+      details:'За 20 дней покажу вечеринки рядом с тобой.'},
+};
+function getEvent(id){ return EV[id] || SPECIAL[id]; }
+
+const CHALLENGES = [
+  {id:'steps', cat:'Физические', icon:'🏃', text:'Пройти 10 000 шагов', goal:10000, unit:'шагов', why:'Завтра Московский марафон. Не бежишь 42 км — сделай свою маленькую версию.'},
+  {id:'stretch', cat:'Физические', icon:'🧘', text:'5 минут растяжки после работы'},
+  {id:'album', cat:'Развлечение', icon:'🎧', text:'Послушать альбом, который ты раньше не слышал'},
+  {id:'parents', cat:'Социальные', icon:'📞', text:'Позвонить родителям просто так', why:'5 минут, а день у них станет лучше. Вечером спрошу, как прошло.'},
+  {id:'fact', cat:'Интеллект', icon:'🧠', text:'Выучить 5 новых слов на любом языке'},
+  {id:'photos', cat:'Быт', icon:'🧹', text:'Удалить 50 ненужных фото из галереи', why:'Освободишь память и заодно найдёшь пару забытых классных кадров.'},
+  {id:'route', cat:'Развлечение', icon:'🗺️', text:'Пройти до дома новым маршрутом'},
+];
+
+/* ---------- state ---------- */
+const KEY='segodnya-proto-v2';
+function fresh(){ return {idx:0, decisions:{}, hidden:[], saved:[], interests:{}, remind:{}, cal:{}, checks:{}, rate:{},
+  dream:{text:'', interp:'', mode:''}, quiz:{}, dayOpen:false, nyPrep:null, hw:null, sport:null,
+  chal:{active:[], steps:0}, chalPick:0, tab:'today', stage:{} }; }
+let S = fresh();
+try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function like(cat,n=1){ S.interests[cat]=(S.interests[cat]||0)+n; }
+function saveEvent(id){ if(!S.saved.includes(id)) S.saved.push(id); S.hidden=S.hidden.filter(x=>x!==id); like(getEvent(id).cat,2); }
+function hideEvent(id){ S.hidden.includes(id)||S.hidden.push(id); S.saved=S.saved.filter(x=>x!==id); const e=getEvent(id); if(e) like(e.cat,-2); }
+
+/* ---------- toast ---------- */
+let toastT, undoFn=null;
+function toast(msg, undo){
+  const t=document.getElementById('toast'); document.getElementById('toastText').textContent=msg;
+  const u=document.getElementById('toastUndo'); u.hidden=!undo; undoFn=undo||null;
+  t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), undo?4200:2400);
+}
+document.getElementById('toastUndo').onclick=()=>{ if(undoFn){ undoFn(); undoFn=null; } document.getElementById('toast').classList.remove('show'); };
+
+/* ---------- dream helpers ---------- */
+const DREAM_SAMPLE='Мне снилось, что я опаздываю на самолёт, бегу по бесконечному аэропорту, а табло всё время меняет номер выхода.';
+function dreamFallback(text, mode){
+  const t=text.toLowerCase();
+  const themes=[
+    {k:['самол','аэропорт','рейс','поезд','опозд'], e:'✈️', s:'Тебе приснилось, что ты опаздываешь на самолёт',
+     base:'Такие сны часто связывают с ощущением, что не успеваешь за переменами или боишься упустить возможность. Это не предсказание — скорее повод подумать, что сейчас откладываешь.',
+     psych:'Психологи описывают сюжеты погони за транспортом как отражение перегрузки: много дел, мало контроля над расписанием. Попробуй сегодня вычеркнуть одну необязательную задачу.',
+     sonnik:'В народных сонниках опоздание на рейс толкуют как «упущенный шанс, который ещё вернётся». Это фольклор, а не наука, но звучит обнадёживающе.',
+     fun:'Мозг ночью тоже ищет выход на посадку, просто табло у него работает хуже, чем в Шереметьеве. Главное — ты успел хотя бы на утро.'},
+    {k:['вод','море','океан','плав','тон'], e:'🌊', s:'Тебе снилась вода',
+     base:'Воду во снах часто связывают с эмоциями: спокойная — с равновесием, бурная — с напряжением. Это не знак, а подсказка прислушаться к себе.',
+     psych:'Во сне мозг перерабатывает впечатления дня; образ воды часто появляется, когда эмоций много, а времени их разобрать мало.',
+     sonnik:'Сонники говорят: чистая вода — к хорошим новостям, мутная — к хлопотам. Это традиция, не факт.',
+     fun:'Возможно, организм просто намекает, что пора выпить стакан воды. Проверь — вдруг сон сбудется прямо сейчас.'},
+    {k:['зуб'], e:'🦷', s:'Тебе снилось, что выпадают зубы',
+     base:'Один из самых частых снов. Его связывают с тревогой о том, как ты выглядишь в глазах других, или с чувством потери контроля.',
+     psych:'Исследователи замечают, что такие сны учащаются в периоды стресса и перемен. Это реакция на нагрузку, а не сигнал о здоровье.',
+     sonnik:'Народные сонники обещают новости о родственниках. Воспринимай это как фольклор.',
+     fun:'Зубная фея, видимо, перепутала адрес и дату. Жалобу можно не писать.'},
+    {k:['экзам','школ','урок','контрольн','сесси'], e:'📝', s:'Тебе снилось, что ты сдаёшь экзамен',
+     base:'Сон про экзамен часто снится людям, которые давно всё сдали. Его связывают с ощущением проверки: работа, отношения, важное решение.',
+     psych:'Мозг использует знакомый с юности сценарий оценки, когда тебя что-то сейчас «проверяет». Подумай, что именно.',
+     sonnik:'По сонникам — к испытанию, которое ты пройдёшь. Приятная трактовка, но это не прогноз.',
+     fun:'Вселенная просто напоминает: хорошо, что сейчас никто не спросит формулу дискриминанта.'},
+    {k:['пада','высот','лет'], e:'🪂', s:'Тебе снилось, что ты падаешь или летаешь',
+     base:'Полёт часто связывают с ощущением свободы, падение — с потерей опоры. Оба сюжета очень распространены и ничего не предсказывают.',
+     psych:'Ощущение падения при засыпании — известный физиологический эффект. Сюжет вокруг него мозг достраивает сам.',
+     sonnik:'Сонники читают полёт как подъём в делах. Фольклор, но настроение поднимает.',
+     fun:'Ночью ты тренировался без самолёта. На марафон всё-таки лучше ногами.'},
+  ];
+  const th = themes.find(x=>x.k.some(k=>t.includes(k))) || {e:'🌙', s:'Тебе приснилось что-то необычное',
+     base:'Сны часто собираются из впечатлений последних дней. Попробуй вспомнить, что в нём было самым ярким, — обычно это и есть главная тема.',
+     psych:'Во сне мозг сортирует события и эмоции. Самое яркое чувство во сне часто подсказывает, о чём ты сейчас думаешь больше всего.',
+     sonnik:'У сонников на любой образ есть трактовка, но это традиция, а не наука. Выбери ту, что тебе нравится.',
+     fun:'Мозг ночью снимает авторское кино без бюджета и сценария. Оценку ставишь ты.'};
+  const body = mode==='psych'?th.psych: mode==='sonnik'?th.sonnik: mode==='fun'?th.fun: th.base;
+  return th.e+' '+th.s+'.\n'+body;
+}
+function dreamPrompt(text, mode){
+  const style = {
+    base:'Мягкая психологическая трактовка: с чем такие сны часто связывают. Закончи фразой, что это не предсказание, а повод подумать о чём-то конкретном.',
+    psych:'Психологическая трактовка: как современная психология объясняет такие сны (стресс, обработка впечатлений). Без мистики. Добавь один маленький практичный совет на сегодня.',
+    sonnik:'Трактовка по народным сонникам. Обязательно явно скажи, что это фольклорная традиция, а не наука.',
+    fun:'Забавная, добрая шутливая трактовка. Без сарказма в адрес человека.'
+  }[mode];
+  return 'Ты пишешь текст для утренней карточки в мобильном приложении «Сегодня». Пользователь рассказал свой сон:\n«'+text.slice(0,1200)+'»\n\n'
+   +'Задача: '+style+'\nФормат: русский язык, обращение на «ты», 2–3 коротких предложения, не больше 60 слов. '
+   +'Первая строка — одно подходящее эмодзи и пересказ сна одной фразой, начиная с «Тебе приснилось, что…». Потом с новой строки трактовка. '
+   +'Никогда не выдавай трактовку за научный факт или предсказание, не ставь диагнозов. Если во сне есть что-то тревожное (насилие, смерть), будь особенно бережным. Верни только текст карточки.';
+}
+
+/* ---------- deck cards ---------- */
+const MODES={psych:'🧠 Психологическая', sonnik:'🔮 Сонник', fun:'😄 Забавная'};
+const BASE = [
+  {id:'dream', cls:'c-dream', cat:'dreams', render(){
+    const d=S.dream;
+    if(d.interp){
+      return `<div class="kick">Сон</div><h3>💤 Вот что может значить твой сон</h3>
+      <div class="grow"><div class="bubble" id="dreamOut" style="white-space:pre-line">${esc(d.interp)}</div>
+      <p style="margin:14px 0 8px;font-weight:700">Хочешь ещё одну трактовку?</p>
+      <div class="chips">${Object.entries(MODES).map(([k,v])=>`<button class="chip ${d.mode===k?'sel':''}" data-act="dreamMode" data-mode="${k}">${v}</button>`).join('')}</div>
+      <p class="note">Это не предсказание и не научный факт — повод подумать.</p></div>
+      <div class="row" style="margin-top:10px"><button class="btn ghost small" data-act="dreamReset">Рассказать другой сон</button></div>`;
+    }
+    return `<div class="kick">Утро начинается</div><h3>💤 Что тебе приснилось?</h3>
+      <p>Расскажи, что тебе сегодня приснилось. Я найду в сне смысл — или хотя бы шутку.</p>
+      <div class="grow"><textarea class="dream" id="dreamText" placeholder="Например: бегу по аэропорту и не успеваю на самолёт…">${esc(d.text)}</textarea>
+      <div id="micState" class="note" hidden></div></div>
+      <div class="row fill" style="margin-top:12px">
+        <button class="btn ghost" data-act="mic"><span class="mic">🎙️ Рассказать</span></button>
+        <button class="btn" data-act="dreamGo">Толковать</button>
+      </div>`;
+  }},
+  {id:'day', cls:'c-day', cat:'facts', render(){
+    return `<div class="kick">📅 Сегодня · 25 сентября</div>
+      <div class="emo">💊</div><h3>Всемирный день фармацевта</h3>
+      <div class="grow">
+      <p style="font-weight:700">А знаешь, почему символом фармацевтики стала чаша со змеёй?</p>
+      ${S.dayOpen?`<div class="bubble light">Образ пришёл из греческих мифов. Змея — спутница бога врачевания Асклепия и его дочери Гигиеи: она сбрасывает кожу и будто обновляется. Чаша — сосуд с лекарством. Вместе они напоминают, что лекарство и яд разделяет доза.<br><br><b>Бонус:</b> змея, обвившая посох, — символ медицины в целом, а чаша со змеёй — именно фармации.</div>`
+        :`<button class="btn" data-act="dayOpen">Узнать</button>`}
+      <p style="margin-top:16px;font-weight:800">Ещё сегодня</p>
+      <div class="chips"><span class="chip ink">🎻 120 лет Шостаковичу</span><span class="chip ink">🎬 Уиллу Смиту — 58</span></div>
+      </div>`;
+  }},
+  {id:'hist', cls:'c-hist', cat:'history', render(){
+    const a=S.quiz.hist, opts=[1898,1906,1913], right=1906;
+    return `<div class="kick">🕰️ В этот день</div>
+      <h3>25 сентября родился Дмитрий Шостакович</h3>
+      <div class="grow"><p>Автор «Ленинградской» симфонии, которую исполнили в блокадном городе в 1942-м. Угадаешь год рождения?</p>
+      <div class="row fill" style="margin-top:14px">${opts.map(o=>`<button class="opt ${a?(o===right?'right':(o===a?'wrong':'dim')):''}" data-act="quiz" data-q="hist" data-v="${o}" ${a?'disabled':''}>${o}</button>`).join('')}</div>
+      ${a?`<div class="bubble" style="margin-top:14px">${a===right?'Точно! ':''}Правильный ответ — 1906. В этом году ему исполнилось бы 120 лет. Кстати, в «Скоро» есть юбилейный концерт.</div>`:''}
+      </div>`;
+  }},
+  {id:'ny', cls:'c-ny', cat:'holiday', render(){
+    const n=daysTo('2027-01-01'), w=Math.floor(n/7), d=n%7;
+    const steps=['🎁 Подарки','✈️ Поездка','💰 Бюджет','👥 Список людей','💡 Идеи'];
+    const tips={'🎁 Подарки':'Ок. В начале ноября пришлю 5 идей подарков по твоим интересам — до того, как всё раскупят.','✈️ Поездка':'Ок. Билеты на праздники дешевле всего за 2–3 месяца. Напомню посмотреть на следующей неделе.','💰 Бюджет':'Ок. Предложу раз в неделю откладывать немного — к декабрю соберётся сумма на праздник без стресса.','👥 Список людей':'Ок. В ноябре попрошу назвать 5–10 человек, кого хочешь поздравить.','💡 Идеи':'Ок. Иногда буду подкидывать одну идею, как провести праздники необычно.'};
+    return `<div class="kick">⏳ До Нового года</div>
+      <div class="big">${n}<small>${plural(n,['день','дня','дней'])}</small></div>
+      <p style="font-weight:700;font-size:17px">${w} ${plural(w,['неделя','недели','недель'])}${d?` и ${d} ${plural(d,['день','дня','дней'])}`:' ровно'}.</p>
+      <div class="grow">${S.nyPrep===null?`<button class="btn" data-act="nyPrep">🎄 Хочу подготовиться</button>`:
+        `<p style="margin-top:4px">С чего начнём? Выбери одно — остальное позже.</p>
+        <div class="chips">${steps.map(s=>`<button class="chip ${S.nyPrep===s?'sel':''}" data-act="nyStep" data-v="${esc(s)}">${s}</button>`).join('')}</div>
+        ${S.nyPrep?`<div class="bubble" style="margin-top:12px">${tips[S.nyPrep]}</div>`:''}`}</div>`;
+  }},
+  {id:'hw', cls:'c-hw', cat:'holiday', render(){
+    const n=daysTo('2026-10-31');
+    return `<div class="kick">Скоро</div><div class="emo">🎃</div>
+      <h3>Хэллоуин через ${n} ${plural(n,['день','дня','дней'])}</h3>
+      <div class="grow"><p style="font-size:18px;font-weight:700">Будешь отмечать?</p>
+      ${S.hw===null?`<div class="row fill" style="margin-top:10px"><button class="btn" data-act="hw" data-v="yes">Да</button><button class="btn ghost" data-act="hw" data-v="no">Нет</button></div>`:
+      `<div class="bubble">${S.hw==='yes'?'Сохранил. За 20 дней покажу интересные вечеринки рядом с тобой.':'Понял. Больше не напоминаю про Хэллоуин.'}</div>`}</div>`;
+  }},
+  {id:'sport', cls:'c-sport', cat:'run', render(){
+    const st=S.sport;
+    return `<div class="kick">⚡ Завтра</div><div class="emo">🏃</div>
+      <h3>Московский марафон</h3>
+      <div class="grow"><p>26–27 сентября, старт и финиш в Лужниках. Один из главных беговых стартов осени.</p>
+      ${!st?`<p style="font-weight:700">Бежишь?</p><div class="stack" style="gap:8px">
+          <button class="btn" data-act="sport" data-v="run">Да, бегу</button>
+          <button class="btn ghost" data-act="sport" data-v="watch">Нет, но интересно</button></div>`:
+       st==='run'?`<div class="bubble">Круто! Добавил в «Мои события» с чеклистом: стартовый пакет, транспорт, одежда. Удачи на трассе.</div>`:
+       `<div class="bubble"><b>Сам марафон тебе не подходит? Тогда попробуем маленькую версию.</b><br><br>🎯 Твой челлендж: сегодня пройти 10 000 шагов.</div>
+        ${S.chal.active.includes('steps')?`<p class="note" style="font-size:14px;opacity:1">Челлендж запущен — прогресс внизу экрана.</p>`:`<button class="btn" style="margin-top:12px" data-act="startChal" data-v="steps">Начать</button>`}`}
+      </div>`;
+  }},
+  {id:'sber', cls:'c-sber', cat:'brands', render(){
+    const a=S.quiz.sber, opts=[1841,1861,1895], right=1841, n=daysTo('2026-11-12');
+    return `<div class="kick">🟢 Через ${n} ${plural(n,['день','дня','дней'])} — день рождения Сбера</div>
+      <h3>Знаешь, с чего началась история Сбера?</h3>
+      <div class="grow"><p>Указ о создании первых сберегательных касс подписал Николай I. Угадаешь год?</p>
+      <div class="row fill" style="margin-top:12px">${opts.map(o=>`<button class="opt ${a?(o===right?'right':(o===a?'wrong':'dim')):''}" data-act="quiz" data-q="sber" data-v="${o}" ${a?'disabled':''}>${o}</button>`).join('')}</div>
+      ${a?`<div class="bubble" style="margin-top:14px">${a===right?'Верно! ':''}Указ вышел 12 ноября (30 октября по старому стилю) 1841 года. Первая касса открылась в Петербурге весной 1842-го, а первым вкладчиком стал Николай Кристофари — он внёс 10 рублей.</div>`:''}
+      </div>`;
+  }},
+];
+const B = Object.fromEntries(BASE.map(c=>[c.id,c]));
+B.dream.group='Сон'; B.sport.group='События';
+['day','hist','ny','hw','sber'].forEach(k=>B[k].group='Праздники');
+const CH_CARDS = ['parents','steps','photos'].map(cid=>({id:'c-'+cid, cls:'c-chal', cat:'challenge', group:'Дела', chal:cid, render(){
+  const c=CHALLENGES.find(x=>x.id===cid);
+  return `<div class="kick">🎯 Дело на сегодня · ${c.cat}</div><div class="emo">${c.icon}</div>
+    <h3>${c.text}</h3><div class="grow"><p>${c.why}</p></div>
+    <div class="row fill"><button class="btn ghost" style="border-color:rgba(24,35,10,.35)" data-act="deckNo">Не сегодня</button>
+    <button class="btn" data-act="deckYes">Беру в список</button></div>`;
+}}));
+const DECK_EVENTS=['shost','derby'];
+const EV_CARDS = DECK_EVENTS.map(eid=>({id:'e-'+eid, cls:'c-ev', cat:EV[eid].cat, group:'События', ev:eid, style:'background:'+EV[eid].color, render(){
+  const e=EV[eid];
+  return `<div class="kick">🔥 Скоро · ${CATS[e.cat]}</div><div class="emo">${e.emoji}</div>
+    <h3>${e.title}</h3>
+    <div class="grow"><p style="font-weight:700">🗓 ${e.dateLabel} · ${inDays(daysTo(e.date))}<br>📍 ${e.place}</p><p>${e.blurb}</p></div>
+    <div class="row fill"><button class="btn ghost" data-act="deckNo">← Не моё</button><button class="btn" data-act="deckYes">Мне интересно →</button></div>`;
+}}));
+const CARDS = [...CH_CARDS, B.dream, B.sport, ...EV_CARDS, B.day, B.hist, B.ny, B.hw, B.sber];
+const PHASES = ['Дела','Сон','События','Праздники'];
+
+function pickChallenges(){
+  const I=S.interests, order=[...CHALLENGES].filter(c=>c.id!=='steps');
+  const score=c=>{ if(c.cat==='Физические') return (I.run||0)+(I.sport||0);
+    if(c.id==='album') return (I.music||0); if(c.cat==='Интеллект') return (I.history||0)+(I.facts||0)+(I.books||0);
+    if(c.id==='route') return (I.art||0); return 0.5; };
+  return order.sort((a,b)=>score(b)-score(a));
+}
+function challengeWhy(c){
+  const I=S.interests;
+  if(c.cat==='Физические' && ((I.run||0)+(I.sport||0))>0) return 'Выбрал, потому что тебе интересен спорт. Займёт 5 минут, а засчитается на весь день.';
+  if(c.id==='album' && (I.music||0)>0) return 'Тебе понравилась музыкальная тема. Совет: начни с первого трека и не переключай.';
+  if(c.cat==='Интеллект' && ((I.history||0)+(I.facts||0))>0) return 'Ты любишь факты, так что это легко. Вечером спрошу, какие слова запомнились.';
+  return 'Одно маленькое дело на сегодня. Можно поменять, если не в настроении.';
+}
+
+/* ---------- render: deck ---------- */
+const deckEl=document.getElementById('deck');
+function remaining(){ return CARDS.filter(c=>!S.decisions[c.id]); }
+function renderPhase(){
+  const cur=(remaining()[0]||{}).group;
+  document.getElementById('phase').innerHTML=PHASES.map(ph=>{
+    const cards=CARDS.filter(c=>c.group===ph), left=cards.filter(c=>!S.decisions[c.id]).length;
+    return `<span class="${ph===cur?'on':''} ${!left?'done':''}">${ph} ${cards.length-left}/${cards.length}</span>`;
+  }).join('');
+}
+function renderDots(){ renderPhase();
+  document.getElementById('dots').innerHTML=CARDS.map(c=>`<span class="${S.decisions[c.id]?'done':''} ${remaining()[0]===c?'on':''}"></span>`).join('');
+}
+function renderDeck(){
+  const rem=remaining();
+  renderDots();
+  document.getElementById('btnYes').disabled=document.getElementById('btnNo').disabled=!rem.length;
+  document.getElementById('deckHint').hidden=!rem.length;
+  if(!rem.length){
+    const liked=Object.values(S.decisions).filter(v=>v==='like').length;
+    deckEl.style.height='280px';
+    deckEl.innerHTML=`<div class="done-card"><div style="font-size:44px">☀️</div><h3>На сегодня всё</h3>
+      <p>Ты посмотрел ${CARDS.length} карточек и отметил ${liked} как интересные. Завтра подберу новые, уже с учётом твоих реакций.</p>
+      <div><button class="sbtn" data-act="replay" style="margin-top:6px">Пересмотреть утро</button></div></div>`;
+    return;
+  }
+  deckEl.style.height='';
+  deckEl.innerHTML=rem.slice(0,3).reverse().map((c,i,arr)=>{
+    const depth=arr.length-1-i;
+    return `<article class="card ${c.cls} ${depth===1?'back1':depth===2?'back2':''}" data-card="${c.id}" style="${c.style||''}" ${depth?'aria-hidden="true"':''}>
+      <div class="stamp yes">ХОЧУ</div><div class="stamp no">МИМО</div>${c.render()}</article>`;
+  }).join('');
+  bindDrag(deckEl.querySelector('.card:last-child'));
+}
+function rerenderTop(){ // re-render only the active card content, keep deck
+  const top=deckEl.querySelector('.card:last-child'); if(!top) return;
+  const c=CARDS.find(x=>x.id===top.dataset.card);
+  top.innerHTML=`<div class="stamp yes">ХОЧУ</div><div class="stamp no">МИМО</div>${c.render()}`;
+}
+
+function decide(dir){
+  const top=deckEl.querySelector('.card:last-child'); if(!top || top.dataset.leaving) return;
+  top.dataset.leaving='1';
+  const id=top.dataset.card, c=CARDS.find(x=>x.id===id);
+  top.style.transform=`translateX(${dir==='like'?520:-520}px) rotate(${dir==='like'?24:-24}deg)`; top.style.opacity='0';
+  const before=JSON.stringify(S);
+  S.decisions[id]=dir;
+  if(dir==='like'){ like(c.cat,1);
+    if(c.chal){ if(!S.chal.active.includes(c.chal)) S.chal.active.push(c.chal); if(c.chal==='steps') S.chal.steps=Math.max(S.chal.steps,2340); toast('Добавил в «Мои дела на сегодня»'); }
+    else if(c.ev){ saveEvent(c.ev); toast('Добавил в «Мои события»'); }
+    else if(id==='ny'){ saveEvent('ny'); toast('Сохранил. Отсчёт до Нового года — в «Моих»'); }
+    else if(id==='hw'){ if(S.hw!=='no'){ S.hw='yes'; saveEvent('halloween'); toast('Хэллоуин — в «Моих событиях»'); } else toast('Понял'); }
+    else if(id==='sport'){ saveEvent('marathon'); toast('Марафон — в «Моих событиях»'); }
+    else toast('Запомнил: тебе такое интересно');
+  } else { like(c.cat,-1);
+    if(id==='hw'){ S.hw='no'; hideEvent('halloween'); }
+    if(c.ev) hideEvent(c.ev);
+    if(id==='sport' && S.sport!=='run' && !S.saved.includes('marathon')) {}
+    toast(c.chal?'Ок, не сегодня':'Понял, больше такое не покажу', ()=>{ S=JSON.parse(before); save(); renderAll(); });
+  }
+  save();
+  setTimeout(()=>{ renderAll(); }, 300);
+}
+document.getElementById('btnYes').onclick=()=>decide('like');
+document.getElementById('btnNo').onclick=()=>decide('skip');
+
+function bindDrag(card){
+  if(!card) return;
+  let x0=0,y0=0,dx=0,active=false,decided=false,pid=null;
+  const yes=card.querySelector('.stamp.yes'), no=card.querySelector('.stamp.no');
+  card.addEventListener('pointerdown',e=>{
+    if(e.target.closest('button,textarea,input,a,.grow .bubble')) return;
+    active=true; decided=false; x0=e.clientX; y0=e.clientY; dx=0; pid=e.pointerId;
+  });
+  card.addEventListener('pointermove',e=>{
+    if(!active||e.pointerId!==pid) return;
+    const mx=e.clientX-x0, my=e.clientY-y0;
+    if(!decided){ if(Math.abs(mx)<8 && Math.abs(my)<8) return;
+      if(Math.abs(my)>Math.abs(mx)){ active=false; return; }
+      decided=true; card.setPointerCapture(pid); card.classList.add('dragging'); }
+    dx=mx;
+    card.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;
+    yes.style.opacity=Math.max(0,Math.min(1,dx/110)); no.style.opacity=Math.max(0,Math.min(1,-dx/110));
+  });
+  const end=()=>{
+    if(!active) return; active=false;
+    card.classList.remove('dragging');
+    if(dx>110) decide('like'); else if(dx<-110) decide('skip');
+    else { card.style.transform=''; yes.style.opacity=0; no.style.opacity=0; }
+  };
+  card.addEventListener('pointerup',end); card.addEventListener('pointercancel',end);
+}
+document.addEventListener('keydown',e=>{
+  if(S.tab!=='today'||/TEXTAREA|INPUT/.test(document.activeElement.tagName)) return;
+  if(e.key==='ArrowRight') decide('like'); if(e.key==='ArrowLeft') decide('skip');
+});
+
+/* ---------- render: soon rail ---------- */
+function visibleEvents(){
+  const I=S.interests; let muted=0;
+  const list=EVENTS.filter(e=>!S.hidden.includes(e.id) && !S.saved.includes(e.id) && !DECK_EVENTS.includes(e.id) && e.id!=='marathon').filter(e=>{
+    if((I[e.cat]||0)<=-2){ muted++; return false; } return true; });
+  list.sort((a,b)=>((I[b.cat]||0)-(I[a.cat]||0)) || (daysTo(a.date)-daysTo(b.date)));
+  return {list, muted};
+}
+function renderRail(){
+  const {list,muted}=visibleEvents(), rail=document.getElementById('rail');
+  rail.innerHTML = list.length ? list.map(e=>`
+    <article class="ev" style="background:${e.color}" data-ev="${e.id}">
+      <div class="cat">${CATS[e.cat]}</div>
+      <div class="emo">${e.emoji}</div>
+      <h4>${e.title}</h4>
+      <div class="meta"><span>🗓 ${e.dateLabel}</span><span>📍 ${e.place}</span></div>
+      ${e.status==='unconfirmed'?'<span class="pill warn" style="align-self:flex-start">🟡 Даты не подтверждены</span>':''}
+      <div class="blurb">${e.blurb}</div>
+      <div class="row"><button class="btn ghost small" data-act="evNo" data-id="${e.id}">← Не моё</button>
+      <button class="btn small" data-act="evYes" data-id="${e.id}">Мне интересно →</button></div>
+    </article>`).join('') : `<div class="empty" style="flex:1">Все события разобраны. Новые появятся завтра.</div>`;
+  document.getElementById('railNote').textContent = muted ? `Скрыл ещё ${muted} ${plural(muted,['похожее событие','похожих события','похожих событий'])} — ты сказал «не моё».` : '';
+}
+function railAct(id, yes){
+  const card=document.querySelector(`.ev[data-ev="${id}"]`);
+  if(card) card.classList.add(yes?'out-r':'out-l');
+  const before=JSON.stringify(S);
+  if(yes){ saveEvent(id); toast('Добавил в «Мои события»'); }
+  else { hideEvent(id); toast('Больше не покажу. Похожее — реже', ()=>{ S=JSON.parse(before); save(); renderAll(); }); }
+  save(); setTimeout(renderAll, 320);
+}
+
+/* ---------- challenges strip ---------- */
+function renderChal(){
+  const sec=document.getElementById('chalSec'), act=S.chal.active;
+  sec.hidden=!act.length;
+  document.getElementById('chalList').innerHTML=act.map(id=>{
+    const c=CHALLENGES.find(x=>x.id===id);
+    if(id==='steps'){ const s=Math.min(S.chal.steps,c.goal), left=c.goal-s, pct=Math.round(s/c.goal*100);
+      return `<div class="chal-strip"><div class="chal-top">${c.icon} ${c.text}<span>${fmt(s)} / ${fmt(c.goal)}</span></div>
+        <div class="progress"><i style="width:${pct}%"></i></div>
+        <div class="row" style="justify-content:space-between;align-items:center"><span class="muted" style="font-size:14px">${left>0?`Осталось ${fmt(left)} ${plural(left,['шаг','шага','шагов'])}`:'Готово! 🎉 Ты прошёл свой марафон'}</span>
+        ${left>0?`<button class="sbtn" data-act="addSteps">+ шаги (демо)</button>`:''}</div></div>`; }
+    const done=(S.chal.done||[]).includes(id);
+    return `<div class="chal-strip"><div class="chal-top">${c.icon} ${c.text}<span>${done?'✓':''}</span></div>
+      <div class="row">${done?'<span class="muted" style="font-size:14px">Сделано. Засчитал 🎉</span>':`<button class="sbtn primary" data-act="chalDone" data-v="${id}">Сделал</button>`}</div></div>`;
+  }).join('');
+}
+
+/* ---------- my events ---------- */
+const COMPANION = {
+  marathon:{stages:[
+    {k:'w',label:'За 7 дней',body:'🏃 До марафона 7 дней. Пора проверить подготовку.'},
+    {k:'d',label:'Завтра',body:'🏃 Завтра марафон. Проверь время старта своего забега и подготовь всё с вечера.'},
+    {k:'a',label:'После',body:'🎉 Ты был на марафоне? Как тебе?'}],
+    list:['Стартовый пакет','Маршрут','Транспорт','Одежда','Погода','Вода'], now:'d'},
+  ny:{stages:[{k:'n',label:'Сейчас',body:'🎄 До Нового года ещё много времени. Иногда буду подсказывать по одному шагу.'},
+    {k:'m',label:'За месяц',body:'🎁 Самое время для подарков: пришлю идеи под людей из твоего списка.'},
+    {k:'d',label:'31 декабря',body:'🥂 Сегодня можно ничего не планировать. Просто отдохни.'}], now:'n'},
+  halloween:{stages:[{k:'n',label:'Сейчас',body:'🎃 Сохранил. Буду держать в голове.'},
+    {k:'m',label:'За 20 дней',body:'🎃 До Хэллоуина 20 дней. Нашли 3 интересные вечеринки рядом с тобой.'},
+    {k:'a',label:'После',body:'👻 Как прошёл Хэллоуин? Кем был?'}], now:'n'},
+};
+function renderMy(){
+  const box=document.getElementById('myList');
+  const items=S.saved.map(getEvent).filter(Boolean).sort((a,b)=>daysTo(a.date)-daysTo(b.date));
+  const badge=document.getElementById('myBadge'); badge.hidden=!items.length; badge.textContent=items.length;
+  if(!items.length){ box.innerHTML=`<div class="empty">Пока пусто. Свайпни вправо событие в «Сегодня» или «Скоро» — оно появится здесь с обратным отсчётом.</div>`; return; }
+  box.innerHTML=items.map(e=>{
+    const n=daysTo(e.date), comp=COMPANION[e.id], stage=S.stage[e.id]||(comp&&comp.now);
+    const st=comp&&comp.stages.find(s=>s.k===stage);
+    return `<div class="panel my">
+      <div class="ico" style="background:${e.color}">${e.emoji}</div>
+      <div><div class="kick2">Моё событие</div><div class="t">${e.title}</div></div>
+      <div class="cd ${n<=1?'soon':''}">⏳ ${inDays(n).replace(/^./,c=>c.toUpperCase())}</div>
+      ${e.status==='unconfirmed'?`<div class="status"><b>🟡 Статус события изменился</b>Организаторы пока не подтвердили проведение. Билеты покажу, когда появится официальный источник.</div>`:''}
+      ${S.more===e.id?`<div class="more">${e.details||''}</div>`:''}
+      ${comp?`<div class="comp"><div class="tl">${comp.stages.map(s=>`<button class="${s.k===stage?'on':''} ${s.k===comp.now?'now':''}" data-act="stage" data-id="${e.id}" data-v="${s.k}">${s.label}</button>`).join('')}</div>
+        <p style="margin:0 0 10px;font-weight:600">${st.body}</p>
+        ${e.id==='marathon'&&stage!=='a'?`<div class="check">${comp.list.map((it,i)=>{const ok=(S.checks[e.id]||[]).includes(i);return `<label class="${ok?'ok':''}"><input type="checkbox" id="ck-${e.id}-${i}" data-act="check" data-id="${e.id}" data-i="${i}" ${ok?'checked':''}>${it}</label>`}).join('')}</div>`:''}
+        ${stage==='a'&&e.id!=='ny'?`<div class="rate">${['😍','🙂','😐','😕'].map(r=>`<button class="${S.rate[e.id]===r?'on':''}" data-act="rate" data-id="${e.id}" data-v="${r}">${r}</button>`).join('')}</div>${S.rate[e.id]?'<p class="muted" style="margin:8px 0 0;font-size:13.5px">Спасибо! Учту, какие события тебе заходят.</p>':''}`:''}
+      </div>`:''}
+      <div class="my-actions">
+        <button class="sbtn ${S.cal[e.id]?'on':''}" data-act="cal" data-id="${e.id}">${S.cal[e.id]?'✓ В календаре':'Добавить в календарь'}</button>
+        <button class="sbtn ${S.remind[e.id]?'on':''}" data-act="remind" data-id="${e.id}">${S.remind[e.id]?'🔔 Напомню за день':'Напомнить'}</button>
+        <button class="sbtn" data-act="more" data-id="${e.id}">${S.more===e.id?'Скрыть':'Подробнее'}</button>
+        ${e.status==='confirmed'&&e.tickets?`<button class="sbtn primary" data-act="ticket" data-id="${e.id}">Купить билет</button>`:''}
+        <button class="sbtn" data-act="unsave" data-id="${e.id}" aria-label="Убрать из моих">✕</button>
+      </div></div>`;
+  }).join('');
+}
+
+/* ---------- about me ---------- */
+function renderMe(){
+  const I=S.interests, ent=Object.entries(I).filter(([,v])=>v!==0).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('tags').innerHTML = ent.length ? ent.map(([k,v])=>`<span class="tag ${v>0?'plus':'minus'}">${v>0?'♥':'✕'} ${CATS[k]||k}</span>`).join('')
+    : '<span class="muted">Пока ничего. Посвайпай утренние карточки.</span>';
+  const h=S.hidden.map(getEvent).filter(Boolean);
+  document.getElementById('hiddenList').innerHTML = h.length ? h.map(e=>`<div class="hid"><span>${e.emoji} ${e.title}</span><button class="sbtn" data-act="unhide" data-id="${e.id}">Вернуть</button></div>`).join('')
+    : '<p class="muted" style="margin:0">Список пуст.</p>';
+}
+
+function renderAll(){ renderDeck(); renderRail(); renderChal(); renderMy(); renderMe(); setTab(S.tab,true); }
+
+/* ---------- tabs ---------- */
+function setTab(t,quiet){
+  S.tab=t; document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  ['today','my','me'].forEach(v=>document.getElementById('v-'+v).hidden=v!==t);
+  if(!quiet){ save(); window.scrollTo({top:0}); }
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+
+/* ---------- actions ---------- */
+let micTimer=null;
+async function runDream(mode){
+  const text=S.dream.text.trim(); if(!text) return;
+  S.dream.mode=mode==='base'?'':mode;
+  S.dream.interp='…'; rerenderTop();
+  const out=()=>document.getElementById('dreamOut');
+  if(out()){ out().textContent='Думаю над твоим сном'; out().classList.add('typing'); }
+  const ai=await askAI(dreamPrompt(text,mode), t=>{ const o=out(); if(o){ o.classList.remove('typing'); o.textContent=t; } });
+  S.dream.interp = (ai && ai.trim()) || dreamFallback(text,mode);
+  like('dreams',1); save(); rerenderTop();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, id=b.dataset.id, v=b.dataset.v;
+  switch(a){
+    case 'deckYes': decide('like'); break;
+    case 'deckNo': decide('skip'); break;
+    case 'mic':{
+      const ms=document.getElementById('micState'), ta=document.getElementById('dreamText');
+      if(micTimer) return;
+      ms.hidden=false; ms.innerHTML='<span class="wave"><b></b><b></b><b></b><b></b></span> Слушаю… (демо: в прототипе голос имитируется)';
+      micTimer=setTimeout(()=>{ ta.value=DREAM_SAMPLE; S.dream.text=DREAM_SAMPLE; save(); ms.textContent='Записал. Можно поправить текст и нажать «Толковать».'; micTimer=null; },1600);
+      break;}
+    case 'dreamGo':{ const ta=document.getElementById('dreamText'); S.dream.text=ta.value; if(!ta.value.trim()){ ta.focus(); toast('Напиши пару слов о сне или нажми 🎙️'); return; } runDream('base'); break;}
+    case 'dreamMode': runDream(b.dataset.mode); break;
+    case 'dreamReset': S.dream={text:'',interp:'',mode:''}; save(); rerenderTop(); break;
+    case 'dayOpen': S.dayOpen=true; like('facts',1); save(); rerenderTop(); break;
+    case 'quiz': S.quiz[b.dataset.q]=Number(v); like(b.dataset.q==='hist'?'history':'brands',1); save(); rerenderTop(); break;
+    case 'nyPrep': S.nyPrep=''; save(); rerenderTop(); break;
+    case 'nyStep': S.nyPrep=v; saveEvent('ny'); save(); rerenderTop(); renderMy(); toast('Отсчёт до Нового года — в «Моих»'); break;
+    case 'hw':
+      S.hw=v; if(v==='yes'){ saveEvent('halloween'); save(); rerenderTop(); renderMy(); setTimeout(()=>decide('like'),900); }
+      else { save(); rerenderTop(); setTimeout(()=>decide('skip'),700); }
+      break;
+    case 'sport':
+      S.sport=v; if(v==='run'){ saveEvent('marathon'); like('run',2); } else { like('run',1); }
+      save(); rerenderTop(); renderMy(); renderRail(); break;
+    case 'startChal':
+      if(!S.chal.active.includes(v)) S.chal.active.push(v); if(v==='steps') S.chal.steps=Math.max(S.chal.steps,2340);
+      like('challenge',1); save(); rerenderTop(); renderChal(); toast('Челлендж принят'); break;
+    case 'chalNext': S.chalPick++; save(); rerenderTop(); break;
+    case 'chalDone': S.chal.done=[...(S.chal.done||[]),v]; save(); renderChal(); toast('Засчитано!'); break;
+    case 'addSteps': S.chal.steps=Math.min(10000,S.chal.steps+1240+Math.floor(Math.random()*900)); save(); renderChal(); break;
+    case 'replay': S.decisions={}; save(); renderAll(); break;
+    case 'evYes': railAct(id,true); break;
+    case 'evNo': railAct(id,false); break;
+    case 'cal': S.cal[id]=!S.cal[id]; save(); renderMy(); if(S.cal[id]) toast('Добавил в календарь (демо)'); break;
+    case 'remind': S.remind[id]=!S.remind[id]; save(); renderMy(); if(S.remind[id]) toast('Напомню за день до события'); break;
+    case 'more': S.more=S.more===id?null:id; renderMy(); break;
+    case 'ticket': toast('Откроется официальный билетный сайт (демо)'); break;
+    case 'unsave': { const before=JSON.stringify(S); S.saved=S.saved.filter(x=>x!==id); save(); renderAll(); toast('Убрал из «Моих»',()=>{S=JSON.parse(before);save();renderAll();}); break; }
+    case 'unhide': S.hidden=S.hidden.filter(x=>x!==id); const ev=getEvent(id); if(ev && (S.interests[ev.cat]||0)<0) S.interests[ev.cat]=0; if(id==='halloween') S.hw=null; save(); renderAll(); toast('Вернул в рекомендации'); break;
+    case 'stage': S.stage[id]=v; save(); renderMy(); break;
+    case 'rate': S.rate[id]=v; like(getEvent(id).cat, v==='😍'||v==='🙂'?1:-1); save(); renderMy(); break;
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target; if(t.dataset.act!=='check') return;
+  const arr=S.checks[t.dataset.id]||(S.checks[t.dataset.id]=[]), i=Number(t.dataset.i);
+  if(t.checked){ arr.includes(i)||arr.push(i); } else S.checks[t.dataset.id]=arr.filter(x=>x!==i);
+  save(); renderMy();
+});
+document.addEventListener('input',e=>{ if(e.target.id==='dreamText'){ S.dream.text=e.target.value; save(); } });
+document.getElementById('reset').onclick=()=>{ S=fresh(); save(); renderAll(); setTab('today'); toast('Утро начато заново'); };
+
+/* ---------- header ---------- */
+(function(){
+  const h=new Date().getHours();
+  document.getElementById('hello').textContent = '☀️ ' + (h>=12&&h<18?'Добрый день':h>=18?'Добрый вечер':'Доброе утро');
+})();
+
+/* ---------- share ---------- */
+document.getElementById('shareBtn').onclick=async()=>{
+  const url=(location.protocol==='https:'&&window.top===window)?location.href.split('#')[0]:'https://rinash88.github.io/daily/';
+  const data={title:'8ra', text:'8ra — что интересного сегодня и что будет дальше?', url};
+  try{ if(navigator.share){ await navigator.share(data); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(data.text+' '+url); toast('Ссылка скопирована'); }
+  catch(e){ toast(url); }
+};
+
+/* ---------- PWA ---------- */
+(function(){
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const box=document.getElementById('installBox'), btn=document.getElementById('installBtn'), txt=document.getElementById('installText');
+  let deferred=null;
+  if(standalone){ txt.textContent='Установлено ✓ Ты открыл 8ra как приложение.'; }
+  else if(isIOS){ document.getElementById('installIos').hidden=false; }
+  else { document.getElementById('installAndroid').hidden=false; }
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferred=e; btn.hidden=false; document.getElementById('installAndroid').hidden=true; });
+  btn.onclick=async()=>{ if(!deferred) return; deferred.prompt(); const r=await deferred.userChoice.catch(()=>null); deferred=null; btn.hidden=true; if(r&&r.outcome==='accepted') toast('Готово! Иконка на главном экране'); };
+  window.addEventListener('appinstalled',()=>{ txt.textContent='Установлено ✓'; btn.hidden=true; });
+  
+})();
+
+renderAll();
+</script>
+
+</body>
+</html>
