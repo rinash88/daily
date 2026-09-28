@@ -274,7 +274,7 @@ textarea.dream::placeholder{color:rgba(255,255,255,.6)}
 
     <div class="sec" id="chalSec" hidden>
       <div class="sec-h"><h2>✅ Мои дела на сегодня</h2></div>
-      <p class="sec-sub">Сюда попадает всё, что ты свайпнул вправо в «Делах»</p>
+      <p class="sec-sub">Дела на один день — завтра будут новые</p>
       <div class="stack" id="chalList"></div>
     </div>
 
@@ -292,6 +292,7 @@ textarea.dream::placeholder{color:rgba(255,255,255,.6)}
       <div class="sec-h"><h2>❤️ Мои события</h2></div>
       <p class="sec-sub">Всё, что ты сохранил, с обратным отсчётом</p>
       <div class="stack" id="myList"></div>
+      <div class="panel" id="addCd" style="margin-top:12px"></div>
     </div>
   </section>
 
@@ -542,6 +543,12 @@ function fresh(){ return {idx:0, decisions:{}, hidden:[], saved:[], interests:{}
   chal:{active:[], steps:0, done:[]}, chalPick:0, tab:'today', stage:{}, cd:{}, day:'', seen:{} }; }
 let S = fresh();
 try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){}
+try{ const old=localStorage.getItem('segodnya-proto-v1'); if(old && !S.migratedV1){ const o=JSON.parse(old);
+  (o.saved||[]).forEach(id=>{ if(!S.saved.includes(id)) S.saved.push(id); });
+  (o.hidden||[]).forEach(id=>{ if(!S.hidden.includes(id)&&!S.saved.includes(id)) S.hidden.push(id); });
+  Object.entries(o.interests||{}).forEach(([k,v])=>{ S.interests[k]=(S.interests[k]||0)+v; });
+  if(o.hw && !S.cd.halloween) S.cd.halloween=o.hw; if(o.nyPrep && S.nyPrep===null) S.nyPrep=o.nyPrep;
+  S.migratedV1=true; } }catch(e){}
 if(S.hw && !S.cd.halloween) S.cd.halloween=S.hw;
 if(S.day!==DAYKEY){ S.prevCh=S.chIds||[]; S.chIds=null; S.day=DAYKEY; S.decisions={}; S.dream={text:'',interp:'',mode:''}; S.quiz={}; S.dayOpen=false; S.sport=null; S.chal={active:[],steps:0,done:[]}; S.stage={}; }
 S.seen=S.seen||{}; if(S.saved.includes('ny')) S.seen.ny=true; if(S.cd.halloween) S.seen.halloween=true;
@@ -888,7 +895,14 @@ function compFor(e){
   ];
   return {stages, now, list};
 }
-function renderMy(){
+function renderAddCd(){
+  const opts=[SPECIAL.ny,...COUNTDOWNS.map(c=>SPECIAL[c.id]),SPECIAL.sber].filter(e=>e && !S.saved.includes(e.id) && daysTo(e.date)>=0)
+    .sort((a,b)=>daysTo(a.date)-daysTo(b.date));
+  const box=document.getElementById('addCd');
+  box.hidden=!opts.length;
+  box.innerHTML=`<p style="margin:0 0 10px;font-weight:800">+ Добавить отсчёт</p><div class="tagcloud">${opts.map(e=>`<button class="tag" data-act="addCd" data-id="${e.id}">${e.emoji} ${e.title} · ${daysTo(e.date)} ${plural(daysTo(e.date),['день','дня','дней'])}</button>`).join('')}</div>`;
+}
+function renderMy(){ renderAddCd();
   const box=document.getElementById('myList');
   const items=S.saved.map(getEvent).filter(Boolean).sort((a,b)=>daysTo(evStart(a))-daysTo(evStart(b)));
   const badge=document.getElementById('myBadge'); badge.hidden=!items.length; badge.textContent=items.length;
@@ -989,6 +1003,7 @@ document.addEventListener('click',e=>{
     case 'more': S.more=S.more===id?null:id; renderMy(); break;
     case 'ticket': toast('Откроется официальный билетный сайт (демо)'); break;
     case 'unsave': { const before=JSON.stringify(S); S.saved=S.saved.filter(x=>x!==id); save(); renderAll(); toast('Убрал из «Моих»',()=>{S=JSON.parse(before);save();renderAll();}); break; }
+    case 'addCd': S.cd[id]='yes'; S.seen[id]=true; saveEvent(id); save(); renderAll(); toast(getEvent(id).title+' — отсчёт добавлен'); break;
     case 'unhide': S.hidden=S.hidden.filter(x=>x!==id); const ev=getEvent(id); if(ev && (S.interests[ev.cat]||0)<0) S.interests[ev.cat]=0; if(S.cd[id]) delete S.cd[id]; save(); renderAll(); toast('Вернул в рекомендации'); break;
     case 'stage': S.stage[id]=v; save(); renderMy(); break;
     case 'rate': S.rate[id]=v; like(getEvent(id).cat, v==='😍'||v==='🙂'?1:-1); save(); renderMy(); break;
