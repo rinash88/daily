@@ -524,7 +524,7 @@ const CHALLENGES = [
   {id:'water', cat:'Физические', icon:'💧', text:'Выпить 6 стаканов воды за день', why:'Поставь бутылку на видное место — это половина дела.'},
 ];
 function dailyChallenges(){
-  const I=S.interests, pool=[...CHALLENGES];
+  const I=S.interests, prev=S.prevCh||[], pool=CHALLENGES.filter(c=>!prev.includes(c.id));
   const score=c=>{ let s=((c.id.charCodeAt(0)*7+c.id.length*13+DOY*31)%17)/17;
     if(c.cat==='Физические') s+=0.3*((I.run||0)+(I.sport||0)>0);
     if(c.id==='album') s+=0.3*((I.music||0)>0);
@@ -539,12 +539,13 @@ function dailyChallenges(){
 const KEY='segodnya-proto-v2';
 function fresh(){ return {idx:0, decisions:{}, hidden:[], saved:[], interests:{}, remind:{}, cal:{}, checks:{}, rate:{},
   dream:{text:'', interp:'', mode:''}, quiz:{}, dayOpen:false, nyPrep:null, hw:null, sport:null,
-  chal:{active:[], steps:0, done:[]}, chalPick:0, tab:'today', stage:{}, cd:{}, day:'' }; }
+  chal:{active:[], steps:0, done:[]}, chalPick:0, tab:'today', stage:{}, cd:{}, day:'', seen:{} }; }
 let S = fresh();
 try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){}
 if(S.hw && !S.cd.halloween) S.cd.halloween=S.hw;
-if(S.day!==DAYKEY){ S.day=DAYKEY; S.decisions={}; S.dream={text:'',interp:'',mode:''}; S.quiz={}; S.dayOpen=false; S.sport=null; S.chal={active:[],steps:0,done:[]}; S.stage={}; }
-S.saved=S.saved.filter(id=>{ const e=getEvent(id); return e && daysTo(e.date)>=-3; });
+if(S.day!==DAYKEY){ S.prevCh=S.chIds||[]; S.chIds=null; S.day=DAYKEY; S.decisions={}; S.dream={text:'',interp:'',mode:''}; S.quiz={}; S.dayOpen=false; S.sport=null; S.chal={active:[],steps:0,done:[]}; S.stage={}; }
+S.seen=S.seen||{}; if(S.saved.includes('ny')) S.seen.ny=true; if(S.cd.halloween) S.seen.halloween=true;
+S.saved=S.saved.filter(id=>{ const e=getEvent(id); return e && daysTo(e.date)>=-1; });
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 function like(cat,n=1){ S.interests[cat]=(S.interests[cat]||0)+n; }
 function saveEvent(id){ if(!S.saved.includes(id)) S.saved.push(id); S.hidden=S.hidden.filter(x=>x!==id); like(getEvent(id).cat,2); }
@@ -699,14 +700,14 @@ const BASE = [
   }},
 ];
 /* ---------- today's deck is assembled from the date ---------- */
-const CD_TODAY = COUNTDOWNS.filter(c=>{ const n=daysTo(c.date); return n>=0 && n<=60 && S.cd[c.id]!=='no'; })
+const CD_TODAY = COUNTDOWNS.filter(c=>{ const n=daysTo(c.date); return n>=0 && n<=60 && !S.cd[c.id] && !S.saved.includes(c.id) && !S.hidden.includes(c.id); })
   .sort((a,b)=>daysTo(a.date)-daysTo(b.date))[0] || null;
-const SPORT_TODAY = EVENTS.filter(e=>(e.cat==='sport'||e.cat==='run') && evActive(e) && daysTo(evStart(e))<=7 && !S.hidden.includes(e.id))
+const SPORT_TODAY = EVENTS.filter(e=>(e.cat==='sport'||e.cat==='run') && evActive(e) && daysTo(evStart(e))<=7 && !S.hidden.includes(e.id) && !S.saved.includes(e.id))
   .sort((a,b)=>daysTo(evStart(a))-daysTo(evStart(b)))[0] || null;
 const B = Object.fromEntries(BASE.map(c=>[c.id,c]));
 B.dream.group='Сон'; B.sport.group='События';
 ['day','hist','ny','cd','sber'].forEach(k=>B[k].group='Праздники');
-const CH_IDS = dailyChallenges();
+const CH_IDS = (S.chIds && S.chIds.length===3) ? S.chIds : dailyChallenges(); S.chIds=CH_IDS;
 const CH_CARDS = CH_IDS.map(cid=>({id:'c-'+cid, cls:'c-chal', cat:'challenge', group:'Дела', chal:cid, render(){
   const c=CHALLENGES.find(x=>x.id===cid);
   return `<div class="kick">🎯 Дело на сегодня · ${c.cat}</div><div class="emo">${c.icon}</div>
@@ -725,7 +726,7 @@ const EV_CARDS = DECK_EVENTS.map(eid=>({id:'e-'+eid, cls:'c-ev', cat:EV[eid].cat
 }}));
 const sberDays = daysTo(SPECIAL.sber.date);
 const CARDS = [...CH_CARDS, B.dream, ...(SPORT_TODAY?[B.sport]:[]), ...EV_CARDS, B.day, B.hist,
-  ...(daysTo(SPECIAL.ny.date)<=120?[B.ny]:[]), ...(CD_TODAY?[B.cd]:[]), ...(sberDays>=0&&sberDays<=50?[B.sber]:[])];
+  ...((daysTo(SPECIAL.ny.date)<=120 && !S.seen.ny) || daysTo(SPECIAL.ny.date)<=7 ?[B.ny]:[]), ...(CD_TODAY?[B.cd]:[]), ...((sberDays>=0&&sberDays<=14&&!S.seen.sber) || sberDays===0 ?[B.sber]:[])];
 const PHASES = ['Дела','Сон','События','Праздники'].filter(p=>CARDS.some(c=>c.group===p));
 
 /* ---------- render: deck ---------- */
@@ -775,6 +776,7 @@ function decide(dir){
   top.style.transform=`translateX(${dir==='like'?520:-520}px) rotate(${dir==='like'?24:-24}deg)`; top.style.opacity='0';
   const before=JSON.stringify(S);
   S.decisions[id]=dir;
+  if(id==='ny'||id==='sber') S.seen[id]=true;
   if(dir==='like'){ like(c.cat,1);
     if(c.chal){ if(!S.chal.active.includes(c.chal)) S.chal.active.push(c.chal); if(c.chal==='steps') S.chal.steps=Math.max(S.chal.steps,2340); toast('Добавил в «Мои дела на сегодня»'); }
     else if(c.ev){ saveEvent(c.ev); toast('Добавил в «Мои события»'); }
